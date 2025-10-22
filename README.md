@@ -51,7 +51,9 @@ A React Native mobile application for chefs to build and manage their restaurant
 3. Install dependencies:
    ```bash
    npm install
-   ### Video link 
+
+
+ ### Video link 
    https://youtu.be/sbWDuYau73E
 
    
