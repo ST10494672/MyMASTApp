@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import {
+  ScrollView,
   SafeAreaView,
   Text,
   View,
   TextInput,
   Button,
-  FlatList,
   Alert,
   StyleSheet,
-  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 
 interface MenuItem {
   id: string;
@@ -19,23 +21,49 @@ interface MenuItem {
   price: string;
 }
 
+// Predefined sample menu items 
+const SAMPLE_MENU: MenuItem[] = [
+  {
+    id: 'sample-1',
+    dishName: 'Garlic Shrimp',
+    description: 'Juicy shrimp sautéed in garlic butter sauce.',
+    course: 'Starters',
+    price: '12.50',
+  },
+  {
+    id: 'sample-2',
+    dishName: 'Grilled Ribeye Steak',
+    description: 'Tender steak grilled to perfection with herbs.',
+    course: 'Mains',
+    price: '28.00',
+  },
+  {
+    id: 'sample-3',
+    dishName: 'Chocolate Lava Cake',
+    description: 'Warm chocolate cake with molten center.',
+    course: 'Dessert',
+    price: '9.50',
+  },
+];
+
 const App = () => {
   const [dishName, setDishName] = useState('');
   const [description, setDescription] = useState('');
   const [course, setCourse] = useState('Starters');
   const [price, setPrice] = useState('');
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]); // ✅ Only user-added items
 
   const courses = ['Starters', 'Mains', 'Dessert'];
 
-  const addMenuItem = () => {
+  // ✅ Add a custom menu item
+  const addCustomMenuItem = () => {
     if (!dishName.trim() || !description.trim() || !price.trim()) {
-      Alert.alert('Error', 'Please fill in dish name, description, and price.');
+      Alert.alert('Error', 'Please fill all fields.');
       return;
     }
 
     const newItem: MenuItem = {
-      id: Date.now().toString(),
+      id: `custom-${Date.now()}`,
       dishName: dishName.trim(),
       description: description.trim(),
       course,
@@ -49,128 +77,127 @@ const App = () => {
     setCourse('Starters');
   };
 
-  // predefined sample menu 
-  const loadSampleMenu = () => {
-    const sample: MenuItem[] = [
-      {
-        id: '1',
-        dishName: 'Garlic Shrimp',
-        description: 'Juicy shrimp sautéed in garlic butter sauce.',
-        course: 'Starters',
-        price: '12.50',
-      },
-      {
-        id: '2',
-        dishName: 'Grilled Ribeye Steak',
-        description: 'Tender steak grilled to perfection with herbs.',
-        course: 'Mains',
-        price: '28.00',
-      },
-      {
-        id: '3',
-        dishName: 'Chocolate Lava Cake',
-        description: 'Warm chocolate cake with molten center.',
-        course: 'Dessert',
-        price: '9.50',
-      },
-    ];
-    setMenuItems(sample);
+  // ✅ Add a sample item to the menu
+  const addSampleItem = (item: MenuItem) => {
+    // Give it a new ID to avoid conflicts
+    const newItem = { ...item, id: `added-${Date.now()}` };
+    setMenuItems([...menuItems, newItem]);
   };
 
-  const renderMenuItem = ({ item }: { item: MenuItem }) => (
-    <View style={styles.menuItem}>
-      <Text style={styles.dishName}>{item.dishName}</Text>
-      <Text style={styles.description}>{item.description}</Text>
-      <Text style={styles.course}>Course: {item.course}</Text>
-      <Text style={styles.price}>Price: ${item.price}</Text>
-    </View>
-  );
-
-  const renderCourseButtons = () =>
-    courses.map((c) => (
-      <TouchableOpacity
-        key={c}
-        style={[styles.courseButton, course === c && styles.courseButtonSelected]}
-        onPress={() => setCourse(c)}
-      >
-        <Text style={[styles.courseButtonText, course === c && styles.courseButtonTextSelected]}>
-          {c}
-        </Text>
-      </TouchableOpacity>
-    ));
-
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>Chef Menu Manager</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <SafeAreaView style={styles.safeArea}>
+          <Text style={styles.title}>Christoffel's Menu Manager</Text>
 
-      {/* Form */}
-      <View style={styles.form}>
-        <Text>Dish Name:</Text>
-        <TextInput
-          style={styles.input}
-          value={dishName}
-          onChangeText={setDishName}
-          placeholder="e.g., Caesar Salad"
-        />
+          {/* ========== CUSTOM ITEM FORM ========== */}
+          <View style={styles.form}>
+            <Text>Add Your Own Dish</Text>
+            <TextInput
+              style={styles.input}
+              value={dishName}
+              onChangeText={setDishName}
+              placeholder="Dish name"
+            />
+            <TextInput
+              style={[styles.input, styles.descriptionInput]}
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Description"
+              multiline
+              numberOfLines={3}
+            />
+            <Text>Select Course:</Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={course}
+                onValueChange={(value) => setCourse(value)}
+                style={styles.picker}
+              >
+                {courses.map((c) => (
+                  <Picker.Item key={c} label={c} value={c} />
+                ))}
+              </Picker>
+            </View>
+            <TextInput
+              style={styles.input}
+              value={price}
+              onChangeText={setPrice}
+              keyboardType="numeric"
+              placeholder="Price (e.g., 12.99)"
+            />
+            <Button
+              title="Add to Menu"
+              onPress={addCustomMenuItem}
+              color="#007AFF"
+            />
+          </View>
 
-        <Text>Description:</Text>
-        <TextInput
-          style={styles.input}
-          value={description}
-          onChangeText={setDescription}
-          placeholder="Fresh romaine with croutons..."
-          multiline
-        />
+          {/* ========== SAMPLE MENU OPTIONS ========== */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Sample Dishes (Add Individually)</Text>
+            {SAMPLE_MENU.map((item) => (
+              <View key={item.id} style={styles.sampleItem}>
+                <Text style={styles.dishName}>{item.dishName}</Text>
+                <Text style={styles.description}>{item.description}</Text>
+                <Text style={styles.course}>Course: {item.course}</Text>
+                <Text style={styles.price}>Price: ${item.price}</Text>
+                <Button
+                  title="Add to Menu"
+                  onPress={() => addSampleItem(item)}
+                  color="#28A745"
+                />
+              </View>
+            ))}
+          </View>
 
-        <Text>Course:</Text>
-        <View style={styles.courseButtonContainer}>
-          {renderCourseButtons()}
-        </View>
+          {/* ========== TOTAL ITEMS ========== */}
+          <View style={styles.totalItems}>
+            <Text style={styles.totalText}>
+              Total Items in Menu: {menuItems.length}
+            </Text>
+          </View>
 
-        <Text>Price ($):</Text>
-        <TextInput
-          style={styles.input}
-          value={price}
-          onChangeText={setPrice}
-          keyboardType="numeric"
-          placeholder="12.99"
-        />
+          {/* ========== USER'S FINAL MENU ========== */}
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Your Menu ({menuItems.length} items)</Text>
+            {menuItems.length === 0 ? (
+              <Text style={styles.emptyText}>Your menu is empty. Add dishes above!</Text>
+            ) : (
+              <View style={styles.menuList}>
+                {menuItems.map((item) => (
+                  <View key={item.id} style={styles.menuItem}>
+                    <Text style={styles.dishName}>{item.dishName}</Text>
+                    <Text style={styles.description}>{item.description}</Text>
+                    <Text style={styles.course}>Course: {item.course}</Text>
+                    <Text style={styles.price}>Price: ${item.price}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
 
-        <Button title="Add Menu Item" onPress={addMenuItem} color="#007AFF" />
-      </View>
-
-      {/* Menu Display */}
-      <View style={styles.homeSection}>
-        <Text style={styles.sectionTitle}>Menu Items ({menuItems.length})</Text>
-        {menuItems.length === 0 ? (
-          <Text style={styles.emptyText}>No items yet. Add one or load sample menu.</Text>
-        ) : (
-          <FlatList
-            data={menuItems}
-            renderItem={renderMenuItem}
-            keyExtractor={(item) => item.id}
-            style={styles.list}
-          />
-        )}
-      </View>
-
-      {/* Button */}
-      <View style={styles.buttonContainer}>
-        <Button
-          title="Load Sample Menu (Part 2)"
-          onPress={loadSampleMenu}
-          color="#28A745"
-        />
-      </View>
-    </SafeAreaView>
+          <View style={{ height: 30 }} />
+        </SafeAreaView>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#f8f8f8',
+  },
+  scrollContent: {
+    paddingBottom: 20,
+  },
+  safeArea: {
+    flex: 1,
+    padding: 20,
   },
   title: {
     fontSize: 24,
@@ -180,7 +207,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   form: {
-    marginBottom: 20,
+    marginBottom: 25,
     padding: 15,
     backgroundColor: '#fff',
     borderRadius: 10,
@@ -194,53 +221,43 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 16,
   },
-  courseButtonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  descriptionInput: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
     marginBottom: 10,
   },
-  courseButton: {
-    flex: 1,
-    paddingVertical: 10,
-    marginHorizontal: 2,
-    backgroundColor: '#e0e0e0',
-    borderRadius: 5,
-    alignItems: 'center',
+  picker: {
+    height: 50,
   },
-  courseButtonSelected: {
-    backgroundColor: '#007AFF',
-  },
-  courseButtonText: {
-    fontSize: 14,
-    color: '#333',
-  },
-  courseButtonTextSelected: {
-    color: 'white',
-    fontWeight: 'bold',
-  },
-  homeSection: {
-    flex: 1,
-    marginTop: 10,
+  section: {
+    marginBottom: 25,
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 12,
     color: '#333',
   },
-  emptyText: {
-    textAlign: 'center',
-    color: '#888',
-    fontStyle: 'italic',
-    marginTop: 20,
+  sampleItem: {
+    backgroundColor: '#f9f9f9',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#eee',
   },
-  list: {
-    flex: 1,
+  menuList: {
+    marginTop: 10,
   },
   menuItem: {
     padding: 15,
     backgroundColor: '#fff',
-    marginVertical: 5,
+    marginVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: '#eee',
@@ -265,7 +282,22 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#28A745',
   },
-  buttonContainer: {
+  totalItems: {
+    backgroundColor: '#e8f4fd',
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  totalText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#007AFF',
+  },
+  emptyText: {
+    textAlign: 'center',
+    color: '#888',
+    fontStyle: 'italic',
     marginTop: 10,
   },
 });
