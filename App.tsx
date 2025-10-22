@@ -10,11 +10,11 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Image, // ✅ Import Image
+  Image,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-// ✅ Add image field to type
+// Add image field 
 interface MenuItem {
   id: string;
   dishName: string;
@@ -24,13 +24,12 @@ interface MenuItem {
   image: string; // URL to image
 }
 
-// ... (imports remain the same)
 
-// Predefined sample menu items with YOUR images
+// Predefined sample menu items with images
 const SAMPLE_MENU: MenuItem[] = [
   {
     id: 'sample-1',
-    dishName: 'Garlic Shrimp',
+    dishName: 'Garlic Butter Shrimp',
     description: 'Juicy shrimp sautéed in garlic butter sauce.',
     course: 'Starters',
     price: '80',
@@ -68,7 +67,7 @@ const App = () => {
       return;
     }
 
-    // ✅ Provide a default image for custom items (or use a placeholder)
+    // Provide a default image for custom items
     const newItem: MenuItem = {
       id: `custom-${Date.now()}`,
       dishName: dishName.trim(),
@@ -90,11 +89,11 @@ const App = () => {
     setMenuItems([...menuItems, newItem]);
   };
 
-  // ✅ Reusable render function for menu items (sample + user)
+  // Reusable render function for menu items
   const renderMenuItem = (item: MenuItem) => (
     <View key={item.id} style={styles.menuItem}>
       <Text style={styles.dishName}>{item.dishName}</Text>
-      {/* ✅ Image below dish name */}
+      {/* Image below dish name */}
       <Image source={{ uri: item.image }} style={styles.dishImage} />
       <Text style={styles.description}>{item.description}</Text>
       <Text style={styles.course}>Course: {item.course}</Text>
@@ -160,7 +159,7 @@ const App = () => {
             {SAMPLE_MENU.map((item) => (
               <View key={item.id} style={styles.sampleItem}>
                 <Text style={styles.dishName}>{item.dishName}</Text>
-                {/* ✅ Image below dish name */}
+                {/*  Image below dish name */}
                 <Image source={{ uri: item.image }} style={styles.dishImage} />
                 <Text style={styles.description}>{item.description}</Text>
                 <Text style={styles.course}>Course: {item.course}</Text>
@@ -281,7 +280,7 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 6, // Add space below name
   },
-  // ✅ New image style
+  //  New image style
   dishImage: {
     width: 60,
     height: 60,
