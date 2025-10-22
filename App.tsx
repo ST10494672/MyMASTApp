@@ -10,64 +10,72 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
+  Image, // ✅ Import Image
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
+// ✅ Add image field to type
 interface MenuItem {
   id: string;
   dishName: string;
   description: string;
   course: string;
   price: string;
+  image: string; // URL to image
 }
 
-// Predefined sample menu items 
+// ... (imports remain the same)
+
+// Predefined sample menu items with YOUR images
 const SAMPLE_MENU: MenuItem[] = [
   {
     id: 'sample-1',
     dishName: 'Garlic Shrimp',
     description: 'Juicy shrimp sautéed in garlic butter sauce.',
     course: 'Starters',
-    price: '12.50',
+    price: '80',
+    image: 'https://media.istockphoto.com/id/182033707/photo/shrimp-scampi.jpg?s=612x612&w=0&k=20&c=sXCyAmVOIG9866CDbDdgxI_438eV2QHfakwDqqgxgzA=',
   },
   {
     id: 'sample-2',
     dishName: 'Grilled Ribeye Steak',
-    description: 'Tender steak grilled to perfection with herbs.',
+    description: 'Tender steak grilled to perfection with herbs and love.',
     course: 'Mains',
-    price: '28.00',
+    price: '165',
+    image: 'https://media.istockphoto.com/id/587207508/photo/sliced-grilled-steak-ribeye-with-herb-butter.jpg?s=612x612&w=0&k=20&c=gm6Kg6rHYH0xWTF5oszm6NZ-hp9aPRbk9V1kvCr8MQI=',
   },
   {
     id: 'sample-3',
-    dishName: 'Chocolate Lava Cake',
-    description: 'Warm chocolate cake with molten center.',
+    dishName: 'Chocolate Cake',
+    description: 'Warm chocolate cake with molten center and custard.',
     course: 'Dessert',
-    price: '9.50',
+    price: '120',
+    image: 'https://img.freepik.com/free-photo/front-view-delicious-cake-with-copy-space_23-2148769299.jpg',
   },
 ];
-
 const App = () => {
   const [dishName, setDishName] = useState('');
   const [description, setDescription] = useState('');
   const [course, setCourse] = useState('Starters');
   const [price, setPrice] = useState('');
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]); // ✅ Only user-added items
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
   const courses = ['Starters', 'Mains', 'Dessert'];
 
-  // ✅ Add a custom menu item
   const addCustomMenuItem = () => {
     if (!dishName.trim() || !description.trim() || !price.trim()) {
       Alert.alert('Error', 'Please fill all fields.');
       return;
     }
 
+    // ✅ Provide a default image for custom items (or use a placeholder)
     const newItem: MenuItem = {
       id: `custom-${Date.now()}`,
       dishName: dishName.trim(),
       description: description.trim(),
       course,
       price: price.trim(),
+      image: 'https://cdn-icons-png.flaticon.com/512/3075/3075715.png', // generic food icon
     };
 
     setMenuItems([...menuItems, newItem]);
@@ -77,12 +85,22 @@ const App = () => {
     setCourse('Starters');
   };
 
-  // ✅ Add a sample item to the menu
   const addSampleItem = (item: MenuItem) => {
-    // Give it a new ID to avoid conflicts
     const newItem = { ...item, id: `added-${Date.now()}` };
     setMenuItems([...menuItems, newItem]);
   };
+
+  // ✅ Reusable render function for menu items (sample + user)
+  const renderMenuItem = (item: MenuItem) => (
+    <View key={item.id} style={styles.menuItem}>
+      <Text style={styles.dishName}>{item.dishName}</Text>
+      {/* ✅ Image below dish name */}
+      <Image source={{ uri: item.image }} style={styles.dishImage} />
+      <Text style={styles.description}>{item.description}</Text>
+      <Text style={styles.course}>Course: {item.course}</Text>
+      <Text style={styles.price}>Price: R{item.price}</Text>
+    </View>
+  );
 
   return (
     <KeyboardAvoidingView
@@ -93,7 +111,7 @@ const App = () => {
         <SafeAreaView style={styles.safeArea}>
           <Text style={styles.title}>Christoffel's Menu Manager</Text>
 
-          {/* ========== CUSTOM ITEM FORM ========== */}
+          {/* Custom item form */}
           <View style={styles.form}>
             <Text>Add Your Own Dish</Text>
             <TextInput
@@ -127,7 +145,7 @@ const App = () => {
               value={price}
               onChangeText={setPrice}
               keyboardType="numeric"
-              placeholder="Price (e.g., 12.99)"
+              placeholder="Price (e.g., R129)"
             />
             <Button
               title="Add to Menu"
@@ -136,15 +154,17 @@ const App = () => {
             />
           </View>
 
-          {/* ========== SAMPLE MENU OPTIONS ========== */}
+          {/* Sample menu options */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Sample Dishes (Add Individually)</Text>
+            <Text style={styles.sectionTitle}>Sample Dishes</Text>
             {SAMPLE_MENU.map((item) => (
               <View key={item.id} style={styles.sampleItem}>
                 <Text style={styles.dishName}>{item.dishName}</Text>
+                {/* ✅ Image below dish name */}
+                <Image source={{ uri: item.image }} style={styles.dishImage} />
                 <Text style={styles.description}>{item.description}</Text>
                 <Text style={styles.course}>Course: {item.course}</Text>
-                <Text style={styles.price}>Price: ${item.price}</Text>
+                <Text style={styles.price}>Price: R{item.price}</Text>
                 <Button
                   title="Add to Menu"
                   onPress={() => addSampleItem(item)}
@@ -154,28 +174,21 @@ const App = () => {
             ))}
           </View>
 
-          {/* ========== TOTAL ITEMS ========== */}
+          {/* Total items */}
           <View style={styles.totalItems}>
             <Text style={styles.totalText}>
               Total Items in Menu: {menuItems.length}
             </Text>
           </View>
 
-          {/* ========== USER'S FINAL MENU ========== */}
+          {/* User final menu */}
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Your Menu ({menuItems.length} items)</Text>
             {menuItems.length === 0 ? (
               <Text style={styles.emptyText}>Your menu is empty. Add dishes above!</Text>
             ) : (
               <View style={styles.menuList}>
-                {menuItems.map((item) => (
-                  <View key={item.id} style={styles.menuItem}>
-                    <Text style={styles.dishName}>{item.dishName}</Text>
-                    <Text style={styles.description}>{item.description}</Text>
-                    <Text style={styles.course}>Course: {item.course}</Text>
-                    <Text style={styles.price}>Price: ${item.price}</Text>
-                  </View>
-                ))}
+                {menuItems.map(renderMenuItem)}
               </View>
             )}
           </View>
@@ -266,6 +279,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: '#000',
+    marginBottom: 6, // Add space below name
+  },
+  // ✅ New image style
+  dishImage: {
+    width: 60,
+    height: 60,
+    alignSelf: 'center',
+    marginVertical: 6,
+    borderRadius: 8,
   },
   description: {
     fontSize: 14,
