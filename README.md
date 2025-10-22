@@ -1,8 +1,7 @@
 # Christoffel's Menu Manager
 
 A React Native mobile application for chefs to build and manage their restaurant menu. Users can add custom dishes, select from sample menu items, and view their curated menu with real-time item count.
-
-![App Preview]  <img width="241" height="338" alt="image" src="https://github.com/user-attachments/assets/3256358a-79f6-431a-8189-3933e9206677" />
+<img width="241" height="338" alt="image" src="https://github.com/user-attachments/assets/3256358a-79f6-431a-8189-3933e9206677" />
 <!-- Optional: add real screenshot later -->
 
 ---
@@ -52,3 +51,5 @@ A React Native mobile application for chefs to build and manage their restaurant
 3. Install dependencies:
    ```bash
    npm install
+
+   
